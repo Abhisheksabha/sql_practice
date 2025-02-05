@@ -1,10 +1,11 @@
 # SQL Practice Queries and Solutions
 
 
-# Q1. Question:- Given a student table, find out the total marks of the top 2 subjects for each student (sname) based on marks.
+Q1. Question:- Given a student table, find out the total marks of the top 2 subjects for each student (sname) based on marks.
 
 ``sql
-CREATE TABLE Students (sname VARCHAR(5), sid VARCHAR(5), marks INT);``
+CREATE TABLE Students (sname VARCHAR(5), sid VARCHAR(5), marks INT);
+``
 ``sql
 INSERT INTO Students (sname, sid, marks) VALUES
     ('ABC', 'SCI', 75),
@@ -12,10 +13,11 @@ INSERT INTO Students (sname, sid, marks) VALUES
     ('ABC', 'HIS', 95),
     ('DEF', 'SCI', 90),
     ('DEF', 'HIS', 91),
-    ('DEF', 'MAT', 75); ``
+    ('DEF', 'MAT', 75); 
+``
     
 
-# Solution:
+Solution:
 ``sql
 WITH rank_table AS(
 	SELECT sname,
@@ -24,7 +26,8 @@ WITH rank_table AS(
 		DENSE_RANK() OVER (PARTITION BY sname ORDER BY marks DESC) AS marks_rank  
 	FROM Students
 	)
-SELECT sname, SUM(marks) AS total_marks FROM rank_table WHERE marks_rank <= 2 GROUP BY sname; ``
+SELECT sname, SUM(marks) AS total_marks FROM rank_table WHERE marks_rank <= 2 GROUP BY sname; 
+``
 
 
 # Q2. Question:- Find the maximum ID by excluding duplicates.

@@ -1,7 +1,7 @@
 # SQL Practice Queries and Solutions
 
 
-Q1. Question:- Given a student table, find out the total marks of the top 2 subjects for each student (sname) based on marks.
+## Q1. Question:- Given a student table, find out the total marks of the top 2 subjects for each student (sname) based on marks.
 
 ``sql
 CREATE TABLE Students (sname VARCHAR(5), sid VARCHAR(5), marks INT);
@@ -17,7 +17,7 @@ INSERT INTO Students (sname, sid, marks) VALUES
 ``
     
 
-Solution:
+## Solution:
 ``sql
 WITH rank_table AS(
 	SELECT sname,

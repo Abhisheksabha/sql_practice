@@ -2,7 +2,6 @@
 
 
 ## Q1. Question:- Given a student table, find out the total marks of the top 2 subjects for each student (sname) based on marks.
-
 ``sql
 WITH rank_table AS(
 	SELECT sname,

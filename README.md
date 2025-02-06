@@ -4,7 +4,7 @@
 ## Q1. Question:- Given a student table, find out the total marks of the top 2 subjects for each student (sname) based on marks.
 
 ``sql
-CREATE TABLE Students (sname VARCHAR(5), sid VARCHAR(5), marks INT);
+CREATE TABLE Students (sname VARCHAR(5), sid VARCHAR(5), marks INT); ``
 
 ``sql
 INSERT INTO Students (sname, sid, marks) VALUES
@@ -14,7 +14,7 @@ INSERT INTO Students (sname, sid, marks) VALUES
     ('DEF', 'SCI', 90),
     ('DEF', 'HIS', 91),
     ('DEF', 'MAT', 75); 
-
+``
     
 
 ## Solution:
@@ -30,7 +30,7 @@ SELECT sname, SUM(marks) AS total_marks FROM rank_table WHERE marks_rank <= 2 GR
 ``
 
 
-# Q2. Question:- Find the maximum ID by excluding duplicates.
+## Q2. Question:- Find the maximum ID by excluding duplicates.
 
 ``sql
 CREATE TABLE employees ( id INT);``
@@ -44,7 +44,7 @@ INSERT INTO employees (id) VALUES
 (8), 
 (8);``
 
-# Solution:
+## Solution:
 ``sql
 WITH count_table AS(
   SELECT id, COUNT(id) AS count_no
@@ -53,7 +53,7 @@ WITH count_table AS(
 SELECT MAX(id) FROM count_table WHERE count_no < 2; ``
 
 
-# Q3. Question:- How do you find the 3rd highest salary from a table?
+## Q3. Question:- How do you find the 3rd highest salary from a table?
 
 ``sql
 CREATE TABLE Employees_records ( Employeeld INT PRIMARY KEY, 
@@ -74,7 +74,7 @@ VALUES
     (7, 'Mamta Banarjee', 'Kolkata', '2023-07-15 13:47:48.530', 15600.00, NULL), 
     (8, 'Parambeer Singh', 'Mumbai', '2022-09-16 07:27:46.453', 3450.00, 4);``
 
-# Solution:
+## Solution:
 ``sql
 WITH sal_table AS(
   SELECT *,
@@ -84,7 +84,7 @@ WITH sal_table AS(
 SELECT * FROM sal_table WHERE row_no = 3;``
 
 
-# Q4. Question:- calculating the percentage of genders in an Employee table.
+## Q4. Question:- calculating the percentage of genders in an Employee table.
 ``sql
 CREATE TABLE employ ( eid INT PRIMARY KEY, ename VARCHAR(50), gender VARCHAR(10));``
 ``sql
@@ -101,7 +101,7 @@ VALUES
     (9, 'James Taylor', 'Male'), 
     (10, 'William Clark', 'Male');``
 
-# Solution:
+## Solution:
 ``sql
 SELECT 
 	COUNT(CASE WHEN gender = 'Male' THEN 1 END)*100 /COUNT(*) AS Male_per,
@@ -109,7 +109,7 @@ SELECT
 FROM employ;`` 
 
 
-# Q5.Question:- Find out the student wise total marks for Top 2 subjects.
+## Q5.Question:- Find out the student wise total marks for Top 2 subjects.
 
 ``sql
 CREATE TABLE StudentMarks ( student_name VARCHAR(50), subject VARCHAR(50), marks INT );``
@@ -127,7 +127,7 @@ VALUES
     ('Catherine', 'English', 68),
     ('Daniel', 'Math', 99);``
 
-# Solution:
+## Solution:
 ``sql
 WITH top_marks AS (
   SELECT *, 
@@ -137,7 +137,7 @@ WITH top_marks AS (
 SELECT * FROM top_marks WHERE marks_rank < 3; ``
 
 
-# Q6.Question:- Extract the Domain from the Email column in Employee Table.
+## Q6.Question:- Extract the Domain from the Email column in Employee Table.
 
 ``sql
 CREATE TABLE Users ( id INT PRIMARY KEY, name VARCHAR(50), email VARCHAR(50) );``
@@ -152,7 +152,7 @@ INSERT INTO Users (id, name, email) VALUES
   (7, 'Sophia Taylor', 'sophia.taylor@tech.dev'),
   (8, 'David Anderson', 'david.anderson@service.us');``
 
-# Solution:
+## Solution:
 ``sql
 SELECT SUBSTRING(email, POSITION('@' IN email) + 1) AS domain_names FROM users ``
 
@@ -160,8 +160,8 @@ SELECT SUBSTRING(email, POSITION('@' IN email) + 1) AS domain_names FROM users `
 
 	
 
-# Q7.Question:- Based on their most recent transaction date, write a query that retrieves the users along with the number of products they bought. 
-# Output the user's most recent transaction date, user ID, and the number of products sorted order by the transaction date. 
+## Q7.Question:- Based on their most recent transaction date, write a query that retrieves the users along with the number of products they bought. 
+**Output the user's most recent transaction date, user ID, and the number of products sorted order by the transaction date.**
 ``sql
 CREATE TABLE transactions (
   product_id INT,
@@ -181,6 +181,7 @@ INSERT INTO transactions (product_id, userid, spend, transaction_date) VALUES
     (7384, 159, 15.5, '2022-07-12 10:00:00'),
     (1247, 159, 23.4, '2022-07-12 10:00:00');``
 
+## Solution:
 ``sql
 WITH date_table AS(
   SELECT *,
@@ -191,7 +192,7 @@ SELECT userid, COUNT(product_id) AS total_products FROM date_table
 	WHERE date_ranking = 1 GROUP BY userid;``
 
 
-# Q8.Question:- We need to Find department wise minimum salary emp_name and maximum salary emp_name.
+## Q8.Question:- We need to Find department wise minimum salary emp_name and maximum salary emp_name.
 
 ``sql
 CREATE TABLE emps_tbl ( emp_name VARCHAR(50), dept_id INT, salary INT);``
@@ -204,7 +205,7 @@ VALUES
     ('Sai', 2, 20000), 
     ('Anna', 2, 10000);``
 
-# Solution:
+## Solution:
 ``sql
 WITH min_sal_table AS(
   SELECT *,
@@ -224,8 +225,8 @@ JOIN max_sal_table x ON m.dept_id = x.dept_id AND m.min_salary = 1 AND max_salar
 GROUP BY m.dept_id; ``
 
 
-# Q9. Question:- Write an SQL query to retrieve the total sales amount in each category.
-# Include all categories, if no products were sold in a category (display as 0). Display the output in ascending order of total_sales. */
+## Q9. Question:- Write an SQL query to retrieve the total sales amount in each category.
+** Include all categories, if no products were sold in a category (display as 0). Display the output in ascending order of total_sales. **
 
 ``sql
 CREATE TABLE categories ( category_id INT PRIMARY KEY, category_name VARCHAR(50) );``
@@ -256,7 +257,7 @@ VALUES
     (6, 4, 400, '2022-02-25'), 
     (7, 4, 600, '2022-03-05');``
 
-# Solution:
+## Solution:
 ``sql
 WITH total_sales AS(
   SELECT category_id, 
@@ -273,7 +274,7 @@ SELECT c.category_id,
 FROM categories c LEFT JOIN total_sales ts 
 ON c.category_id = ts.category_id; ``
 
-# Q10. Question:- Write a SQL query to find emp who is inside the office..
+## Q10. Question:- Write a SQL query to find emp who is inside the office..
 ``sql
 CREATE TABLE office (
 emp_id INT,
@@ -293,7 +294,7 @@ INSERT INTO office (emp_id, emp_status, time_id) VALUES
     (4, 'in', '2023-12-22 09:45:00'),
     (5, 'out', '2023-12-22 09:40:00');``
 
-# Soultion:
+## Soultion:
 ``sql
 WITH curr_status AS(
   SELECT *, 
@@ -303,7 +304,7 @@ WITH curr_status AS(
 SELECT emp_id FROM curr_status 
 WHERE emp_status = 'in' AND status = 1; ``
 
-# Q11. Question:- Return the Players and their total runs scored, those who did at least two half centuries and did not out for a duck..
+## Q11. Question:- Return the Players and their total runs scored, those who did at least two half centuries and did not out for a duck..
 ``sql
 CREATE TABLE matches ( match_id int, player_id int, runs_scored int );``
 ``sql
@@ -332,7 +333,7 @@ INSERT INTO players (id, name) VALUES
     (310, 'Warner'), 
     (402, 'Buttler');``
 
-# Soultion:
+## Soultion:
 ``sql
 WITH summary AS(
   SELECT player_id,

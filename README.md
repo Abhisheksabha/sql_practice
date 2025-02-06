@@ -5,7 +5,7 @@
 
 ``sql
 CREATE TABLE Students (sname VARCHAR(5), sid VARCHAR(5), marks INT);
-``
+
 ``sql
 INSERT INTO Students (sname, sid, marks) VALUES
     ('ABC', 'SCI', 75),
@@ -14,7 +14,7 @@ INSERT INTO Students (sname, sid, marks) VALUES
     ('DEF', 'SCI', 90),
     ('DEF', 'HIS', 91),
     ('DEF', 'MAT', 75); 
-``
+
     
 
 ## Solution:

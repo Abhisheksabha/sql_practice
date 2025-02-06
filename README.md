@@ -9,207 +9,334 @@ sid VARCHAR(5),
 marks INT
 );
 ```
-
-## Business Problems and Solutions
-
-### 1. Count the Number of Movies vs TV Shows
-
-**Objective:** Determine the type of content on Netflix.
-
 ```sql
-SELECT type, COUNT(show_id) FROM netflix GROUP BY type;
+INSERT INTO Students (sname, sid, marks) 
+VALUES
+('ABC', 'SCI', 75),
+('ABC', 'MAT', 80),
+('ABC', 'HIS', 95),
+('DEF', 'SCI', 90),
+('DEF', 'HIS', 91),
+('DEF', 'MAT', 75);
 ```
 
 
-### 2. Find the Most Common Rating for Movies and TV Shows
-
-**Objective:** Identify the most frequently occurring rating for each type of content.
-
-```sql
-SELECT type, rating, total_ratings FROM (
-	SELECT type, rating, COUNT(rating) AS total_ratings, 
-		RANK() OVER (PARTITION BY type ORDER BY COUNT(rating) DESC) as ranking
-	FROM netflix GROUP BY type, rating 
-) WHERE ranking = 1 ;
-```
-
-### 3. List All Movies Released in a Specific Year (e.g., 2020)
-
-**Objective:** Retrieve all movies released in a specific year.
-
-```sql
-SELECT * FROM netflix 
-	WHERE type = 'Movie' AND release_year = 2020;
-```
-
-### 4. Find the Top 5 Countries with the Most Content on Netflix
-
-**Objective:** Identify the top 5 countries with the highest number of content items.
-
-```sql
-SELECT UNNEST(STRING_TO_ARRAY(country, ',')), COUNT(show_id) AS total_contents FROM netflix
-	GROUP BY 1 ORDER BY 2 DESC LIMIT 5;
-```
+WITH rank_table AS(
+	SELECT sname,
+		sid,
+		marks,
+		DENSE_RANK() OVER (PARTITION BY sname ORDER BY marks DESC) AS marks_rank  
+	FROM Students
+	)
+SELECT sname, SUM(marks) AS total_marks FROM rank_table WHERE marks_rank <= 2 GROUP BY sname
 
 
-### 5. Identify the Longest Movie
-
-**Objective:** Find the movie with the longest duration.
-
-```sql
-SELECT * FROM netflix 
-	WHERE type = 'Movie' AND 
-		CAST(REGEXP_REPLACE(duration, '[^0-9]', '', 'g') AS INTEGER) = (SELECT MAX(CAST(REGEXP_REPLACE(duration, '[^0-9]', '', 'g') AS INTEGER)) FROM netflix)
-
--- OR
-
-SELECT * FROM netflix 
-	WHERE type = 'Movie' 
-	AND
-	SPLIT_PART(duration, ' ', 1):: numeric = (SELECT MAX(SPLIT_PART(duration, ' ',1)::numeric ) FROM netflix)
-```
-
-### 6. Find Content Added in the Last 5 Years
-
-**Objective:** Retrieve content added to Netflix in the last 5 years.
-
-```sql
-SELECT * FROM netflix
-	WHERE TO_DATE(date_added, 'month DD, YYYY') >= CURRENT_DATE - INTERVAL '5 years' ;
-```
-
-### 7. Find All Movies/TV Shows by Director 'Rajiv Chilaka'
-
-**Objective:** Retrieve content by director.
-
-```sql
-SELECT *
-FROM (
-    SELECT 
-        *,
-        UNNEST(STRING_TO_ARRAY(director, ',')) AS director_name
-    FROM netflix
-) AS t
-WHERE director_name = 'Rajiv Chilaka';
-```
-
-### 8. List All TV Shows with More Than 5 Seasons
-
-**Objective:** Identify TV shows with more than 5 seasons.
-
-```sql
-SELECT * FROM netflix 
-	WHERE type = 'TV Show' 
-	AND 
-	CAST (REGEXP_REPLACE(duration, '[^0-9]', '', 'g') AS INTEGER) > 5 
-
--- OR
-
-SELECT * FROM netflix
-	WHERE type = 'TV Show' AND SPLIT_PART(duration, ' ', 1):: numeric > 5
-```
-
-### 9. Count the Number of Content Items in Each Genre
-
-**Objective:** Count the number of content items in each genre.
-
-```sql
-SELECT UNNEST(STRING_TO_ARRAY(listed_in, ',')) AS genre, COUNT(show_id) FROM netflix 
-	GROUP BY genre
-```
-
-### 10.Find each year and the average numbers of content release in India on netflix. 
-return top 5 year with highest avg content release
-
-**Objective:** Calculate and rank years by the average number of content releases in India.
-
-```sql
-SELECT 
-	EXTRACT(YEAR FROM TO_DATE(date_added, 'Month DD, YYYY')) AS year,
-	COUNT(show_id) AS total_content,
-	ROUND(
-		COUNT(show_id)::numeric /(SELECT COUNT(show_id) FROM netflix WHERE country ='India'):: numeric *100 ,2) AS avg_content
-FROM netflix
-	WHERE country = 'India'
-	GROUP BY 1
-```
-
-### 11. List All Movies that are Documentaries
-
-**Objective:** Retrieve all movies classified as documentaries.
-
-```sql
-SELECT * FROM netflix WHERE listed_in ILIKE '%Documentaries%'
-```
+-- Q2. Question:- Find the maximum ID by excluding duplicates.
 
 
-### 12. Find All Content Without a Director
+CREATE TABLE employees ( id INT);
 
-**Objective:** List contents that does not have a director.
+INSERT INTO employees (id) VALUES 
+(2), 
+(5), 
+(6), 
+(6), 
+(7), 
+(8), 
+(8);
 
-```sql
-SELECT * FROM netflix WHERE director IS NULL
-```
-
-### 13. Find How Many Movies Actor 'Salman Khan' Appeared in the Last 10 Years
-
-**Objective:** Count the number of movies featuring 'Salman Khan' in the last 10 years.
-
-```sql
-SELECT * FROM netflix 
-	WHERE casts ILIKE '%Salman Khan%'
-	AND release_year > EXTRACT(YEAR FROM CURRENT_DATE) - 10;
-```
-
-### 14. Find the Top 10 Actors Who Have Appeared in the Highest Number of Movies Produced in India
-
-**Objective:** Identify the top 10 actors with the most appearances in Indian-produced movies.
-
-```sql
-SELECT UNNEST(STRING_TO_ARRAY(casts, ',' )) AS actors, COUNT(show_id) AS total_movies FROM netflix
-	WHERE country ILIKE '%India%'
-	GROUP BY 1
-	ORDER BY 2 DESC 
-	LIMIT 10;
-```
-
-### 15. Categorize Content Based on the Presence of 'Kill' and 'Violence' Keywords
-
-**Objective:** Categorize content and Count the number of items in each category.
-
-```sql
-WITH content_table AS (
-	SELECT *,
-		CASE 
-			WHEN description ILIKE '% kill%'
-			OR
-			description ILIKE '%violence%'
-			THEN 'Bad Content'
-			ELSE
-			'Good Content'
-		END AS Content_category
-	FROM netflix
+WITH count_table AS(
+SELECT id, COUNT(id) AS count_no
+FROM employees GROUP BY id
 )
-SELECT content_category, COUNT(show_id) AS total_content FROM content_table
-	GROUP BY 1;
-```
+SELECT MAX(id) FROM count_table WHERE count_no < 2
 
 
-## Findings and Conclusion
-
-- **Content Distribution:** The dataset contains a diverse range of movies and TV shows with varying ratings and genres.
-- **Common Ratings:** Insights into the most common ratings provide an understanding of the content's target audience.
-- **Geographical Insights:** The top countries and the average content releases by India highlight regional content distribution.
-- **Content Categorization:** Categorizing content based on specific keywords helps in understanding the nature of content available on Netflix.
+-- Q3. Question:- How do you find the 3rd highest salary from a table?
 
 
+CREATE TABLE Employees_records ( Employeeld INT PRIMARY KEY, 
+	EmployeeName VARCHAR(50), 
+	City VARCHAR(50), 
+	DateOfJoining  TIMESTAMP,
+	Salary DECIMAL(10, 2), 
+	DepartmentId INT);
+
+INSERT INTO Employees_records (Employeeld, EmployeeName, City, DateOfJoining, Salary, DepartmentId) 
+VALUES 
+    (1, 'Rahul', 'Pune', '2022-06-30 20:53:58.963', 123400.00, 4), 
+    (2, 'Sharath', 'Kanpur', '2022-03-17 06:13:11.000', 56789.00, 3), 
+    (3, 'Pankaj', 'Delhi', '2022-07-24 20:23:25.200', 34560.00, 3), 
+    (4, 'Sharddul', 'Pune', '2023-07-01 16:10:11.530', 23400.00, NULL), 
+    (5, 'Mohan', 'Manali', '2023-07-14 10:15:10.310', 12600.00, NULL), 
+    (6, 'Rekha', 'Manali', '2023-07-14 10:15:10.310', 12600.00, NULL), 
+    (7, 'Mamta Banarjee', 'Kolkata', '2023-07-15 13:47:48.530', 15600.00, NULL), 
+    (8, 'Parambeer Singh', 'Mumbai', '2022-09-16 07:27:46.453', 3450.00, 4);
 
 
+WITH sal_table AS(
+SELECT *,
+ROW_NUMBER() OVER(ORDER BY Salary DESC) AS row_no
+FROM employees_records 
+)
+SELECT * FROM sal_table WHERE row_no = 3
 
 
+-- Q4. Question:- calculating the percentage of genders in an Employee table.
 
 
+CREATE TABLE employ ( eid INT PRIMARY KEY, ename VARCHAR(50), gender VARCHAR(10));
 
+INSERT INTO employ (eid, ename, gender) 
+VALUES 
+    (1, 'John Doe', 'Male'), 
+    (2, 'Jane Smith', 'Female'), 
+    (3, 'Michael Johnson', 'Male'), 
+    (4, 'Emily Davis', 'Female'), 
+    (5, 'Robert Brown', 'Male'), 
+    (6, 'Sophia Wilson', 'Female'), 
+    (7, 'David Lee', 'Male'), 
+    (8, 'Emma White', 'Female'), 
+    (9, 'James Taylor', 'Male'), 
+    (10, 'William Clark', 'Male');
+
+SELECT * FROM employ
+
+SELECT 
+	COUNT(CASE WHEN gender = 'Male' THEN 1 END)*100 /COUNT(*) AS Male_per,
+	COUNT(CASE WHEN gender = 'Female' THEN 1 END)*100 / COUNT(*) AS Female_per
+FROM employ 
+
+
+-- Q5.Question:- Find out the student wise total marks for Top 2 subjects.
+
+
+CREATE TABLE StudentMarks ( student_name VARCHAR(50), subject VARCHAR(50), marks INT );
+
+INSERT INTO StudentMarks (student_name, subject, marks)
+VALUES
+    ('Alice', 'Math', 65),
+    ('Alice', 'Science', 80),
+    ('Alice', 'English', 78),
+    ('Bob', 'Math', 82),
+    ('Bob', 'Science', 85),
+    ('Bob', 'English', 88),
+    ('Catherine', 'Math', 70),
+    ('Catherine', 'Science', 72),
+    ('Catherine', 'English', 68),
+    ('Daniel', 'Math', 99);
+
+SELECT * FROM studentmarks 
+
+WITH top_marks AS (
+SELECT *, 
+	DENSE_RANK() OVER(PARTITION BY student_name ORDER BY marks DESC) AS marks_rank
+FROM studentmarks 
+)
+SELECT * FROM top_marks WHERE marks_rank < 3 
+
+
+-- Q6.Question:- Extract the Domain from the Email column in Employee Table.
+
+
+CREATE TABLE Users ( id INT PRIMARY KEY, name VARCHAR(50), email VARCHAR(50) );
+
+INSERT INTO Users (id, name, email) VALUES
+
+(1, 'John Doe', 'john.doe@example.com'),
+
+(2, 'Jane Smith', 'jane.smith@company.com'),
+
+(3, 'Alice Johnson', 'alice.johnson@business.org'),
+
+(4, 'Robert Brown', 'robert.brown@enterprise.net'),
+
+(5, 'Emily Davis', 'emily.davis@startup.io'),
+
+(6, 'Michael Wilson', 'michael.wilson@web.co'),
+
+(7, 'Sophia Taylor', 'sophia.taylor@tech.dev'),
+
+(8, 'David Anderson', 'david.anderson@service.us');
+
+
+SELECT POSITION('@' IN email) FROM users  
+
+SELECT SUBSTRING(email, POSITION('@' IN email) + 1) AS domain_names FROM users 
+
+-- for POSTGRE SQL -> POSITION() for sql server -> CHARINDEX()
+
+	
+
+-- Q7.Question:- Based on their most recent transaction date, write a query that retrieves the users along with the number of products they bought. 
+--	Output the user's most recent transaction date, user ID, and the number of products sorted order by the transaction date.
+
+CREATE TABLE transactions (
+
+product_id INT,
+
+userid INT,
+
+spend DECIMAL(10, 2),
+
+transaction_date TIMESTAMP );
+
+INSERT INTO transactions (product_id, userid, spend, transaction_date) VALUES
+    (3673, 123, 68.9, '2022-07-08 10:00:00'),
+    (9623, 123, 274.1, '2022-07-08 10:00:00'),
+    (1467, 115, 19.9, '2022-07-08 10:00:00'),
+    (2513, 159, 25.0, '2022-07-08 10:00:00'),
+    (1452, 159, 74.5, '2022-07-10 10:00:00'),
+    (1452, 123, 74.5, '2022-07-10 10:00:00'),
+    (9765, 123, 100.15, '2022-07-11 10:00:00'),
+    (6536, 115, 57.0, '2022-07-12 10:00:00'),
+    (7384, 159, 15.5, '2022-07-12 10:00:00'),
+    (1247, 159, 23.4, '2022-07-12 10:00:00');
+
+
+WITH date_table AS(
+SELECT *,
+	DENSE_RANK() OVER(PARTITION BY userid ORDER BY transaction_date) AS date_ranking
+FROM transactions 
+)
+SELECT userid, COUNT(product_id) AS total_products FROM date_table 
+	WHERE date_ranking = 1 GROUP BY userid 
+
+
+-- Q8.Question:- We need to Find department wise minimum salary emp_name and maximum salary emp_name.
+
+
+CREATE TABLE emps_tbl ( emp_name VARCHAR(50), dept_id INT, salary INT);
+
+INSERT INTO emps_tbl (emp_name, dept_id, salary)
+VALUES 
+    ('Siva', 1, 30000), 
+    ('Ravi', 2, 40000), 
+    ('Prasad', 1, 50000), 
+    ('Sai', 2, 20000), 
+    ('Anna', 2, 10000);
+
+SELECT * FROM emps_tbl
+
+WITH min_sal_table AS(
+SELECT *,
+	ROW_NUMBER() OVER(PARTITION BY dept_id ORDER BY salary ASC) AS min_salary  
+FROM emps_tbl
+),
+max_sal_table AS(
+SELECT *,
+	ROW_NUMBER() OVER(PARTITION BY dept_id ORDER BY salary DESC) AS max_salary
+FROM emps_tbl
+)
+SELECT m.dept_id, MIN(m.emp_name), MIN(m.salary),
+MAX(x.emp_name), MAX(x.salary) FROM min_sal_table m
+JOIN max_sal_table x ON m.dept_id = x.dept_id AND m.min_salary = 1 AND max_salary = 1
+GROUP BY m.dept_id 
+
+
+-- Q9. Question:- Write an SQL query to retrieve the total sales amount in each category.
+--Include all categories, if no products were sold in a category (display as 0). Display the output in ascending order of total_sales. */
+
+
+CREATE TABLE categories ( category_id INT PRIMARY KEY, category_name VARCHAR(50) );
+
+
+INSERT INTO categories (category_id, category_name) 
+VALUES 
+    (1, 'Electronics'), 
+    (2, 'Clothing'), 
+    (3, 'Books'), 
+    (4, 'Home Decor');
+
+
+CREATE TABLE sales_tbl (
+
+sale_id INT PRIMARY KEY, category_id INT, amount INT, sale_date DATE, FOREIGN KEY (category_id) REFERENCES categories(category_id) );
+
+
+INSERT INTO sales_tbl (sale_id, category_id, amount, sale_date) 
+VALUES 
+    (1, 1, 500, '2022-01-05'), 
+    (2, 1, 800, '2022-02-10'), 
+    (4, 3, 200, '2022-02-20'), 
+    (5, 3, 150, '2022-03-01'), 
+    (6, 4, 400, '2022-02-25'), 
+    (7, 4, 600, '2022-03-05');
+
+SELECT * FROM categories
+SELECT * FROM sales_tbl
+
+WITH total_sales AS(
+SELECT category_id, SUM(amount) AS total_sales FROM sales_tbl GROUP BY category_id ORDER BY SUM(amount) ASC
+)
+SELECT c.category_id, 
+	CASE 
+		WHEN ts.total_sales IS NULL THEN 0
+		ELSE ts.total_sales
+	END
+	FROM categories c LEFT JOIN total_sales ts ON c.category_id = ts.category_id
+
+-- Q10. Question:- Write a SQL query to find emp who is inside the office..
+
+CREATE TABLE office (
+
+emp_id INT,
+
+emp_status VARCHAR(10), time_id TIMESTAMP);
+
+INSERT INTO office (emp_id, emp_status, time_id) VALUES
+    (1, 'in', '2023-12-22 09:00:00'),
+    (1, 'out', '2023-12-22 09:15:00'),
+    (2, 'in', '2023-12-22 09:00:00'),
+    (2, 'out', '2023-12-22 09:15:00'),
+    (2, 'in', '2023-12-22 09:30:00'),
+    (3, 'out', '2023-12-22 09:00:00'),
+    (3, 'in', '2023-12-22 09:15:00'),
+    (3, 'out', '2023-12-22 09:30:00'),
+    (3, 'in', '2023-12-22 09:45:00'),
+    (4, 'in', '2023-12-22 09:45:00'),
+    (5, 'out', '2023-12-22 09:40:00');
+
+SELECT * FROM office
+
+WITH curr_status AS(
+SELECT *, 
+	ROW_NUMBER() OVER(PARTITION BY emp_id ORDER BY time_id DESC) AS status
+FROM office 
+)
+SELECT emp_id FROM curr_status 
+WHERE emp_status = 'in' AND status = 1
+
+-- Q11. Question:- Return the Players and their total runs scored, those who did at least two half centuries and did not out for a duck..
+
+CREATE TABLE matches ( match_id int, player_id int, runs_scored int );
+
+INSERT INTO matches VALUES (1, 208, 28), (2, 105, 0), (3, 201, 75), (4, 310, 48), (5, 402, 52),(6, 208, 58),(7, 105, 78), (8, 402, 25), (9, 310, 0),(10, 201, 90),(11, 208, 84), (12, 105, 102);
+
+
+CREATE TABLE players ( id int primary key, name varchar(20) );
+
+INSERT INTO players (id, name) VALUES
+    (208, 'Dekock'), 
+    (105, 'Virat'), 
+    (201, 'Miller'), 
+    (310, 'Warner'), 
+    (402, 'Buttler');
+
+SELECT * FROM matches
+
+WITH summary AS(
+SELECT player_id,
+	COUNT(CASE WHEN runs_scored >= 50 THEN 1 END) AS half_cen,
+	COUNT(CASE WHEN runs_scored = 0 THEN 1 END) AS ducks, 
+	SUM(runs_scored) AS total_runs
+FROM matches
+GROUP BY player_id
+)
+SELECT ps.name, s.player_id, s.total_runs FROM summary s JOIN players ps 
+ON s.player_id = ps.id
+AND 
+s.half_cen >= 2 AND s.ducks = 0
 
 
 

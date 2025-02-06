@@ -20,16 +20,16 @@ VALUES
 ('DEF', 'MAT', 75);
 ```
 
-
+```sql
 WITH rank_table AS(
-	SELECT sname,
-		sid,
-		marks,
-		DENSE_RANK() OVER (PARTITION BY sname ORDER BY marks DESC) AS marks_rank  
-	FROM Students
-	)
+SELECT sname,
+sid,
+marks,
+DENSE_RANK() OVER (PARTITION BY sname ORDER BY marks DESC) AS marks_rank  
+FROM Students
+)
 SELECT sname, SUM(marks) AS total_marks FROM rank_table WHERE marks_rank <= 2 GROUP BY sname
-
+```
 
 -- Q2. Question:- Find the maximum ID by excluding duplicates.
 

@@ -4,21 +4,6 @@
 ## Q1. Question:- Given a student table, find out the total marks of the top 2 subjects for each student (sname) based on marks.
 
 ``sql
-CREATE TABLE Students (sname VARCHAR(5), sid VARCHAR(5), marks INT); ``
-
-``sql
-INSERT INTO Students (sname, sid, marks) VALUES
-    ('ABC', 'SCI', 75),
-    ('ABC', 'MAT', 80),
-    ('ABC', 'HIS', 95),
-    ('DEF', 'SCI', 90),
-    ('DEF', 'HIS', 91),
-    ('DEF', 'MAT', 75); 
-``
-    
-
-## Solution:
-``sql
 WITH rank_table AS(
 	SELECT sname,
 		sid,
